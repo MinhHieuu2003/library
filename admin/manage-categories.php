@@ -116,7 +116,7 @@ header('location:manage-categories.php');
                                             <th>Trạng thái</th>
                                             <th>Ngày tạo</th>
                                             <th>Ngày sửa</th>
-                                            <th>Chỉnh sửa</th>
+                                            <th>Hành động</th>
                                         </tr>
                                     </thead>
                                     <tbody>

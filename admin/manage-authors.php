@@ -115,7 +115,7 @@ header('location:manage-authors.php');
                                             <th>Tác giả</th>                                       
                                             <th>Ngày tạo</th>
                                             <th>Ngày sửa</th>
-                                            <th>Chỉnh sửa</th>
+                                            <th>Hành động</th>
                                         </tr>
                                     </thead>
                                     <tbody>

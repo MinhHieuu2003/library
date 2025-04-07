@@ -90,7 +90,7 @@ header('location:reg-students.php');
                                             <th>SDT</th>
                                             <th>Ngày đăng kí</th>
                                             <th>Trạng thái</th>
-                                            <th>Chỉnh sửa</th>
+                                            <th>Hành động</th>
                                         </tr>
                                     </thead>
                                     <tbody>
