@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th4 06, 2025 lúc 11:34 AM
+-- Thời gian đã tạo: Th4 07, 2025 lúc 12:45 PM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.0.30
 
@@ -53,7 +53,7 @@ CREATE TABLE `tblauthors` (
   `id` int(11) NOT NULL,
   `AuthorName` varchar(159) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `creationDate` timestamp NULL DEFAULT current_timestamp(),
-  `UpdationDate` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp()
+  `UpdationDate` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
@@ -64,7 +64,9 @@ INSERT INTO `tblauthors` (`id`, `AuthorName`, `creationDate`, `UpdationDate`) VA
 (1, 'Naruto', '2025-03-28 12:49:09', '2025-03-29 16:03:28'),
 (2, 'Ichigo', '2025-03-27 14:30:23', '2025-03-31 16:03:35'),
 (3, 'Luffy', '2025-03-13 14:35:08', '2021-03-31 16:03:43'),
-(4, 'Songoku', '2025-03-13 14:35:21', '2025-04-02 16:10:29');
+(4, 'Songoku', '2025-03-13 14:35:21', '2025-04-02 16:10:29'),
+(10, 'Dale Carnegie', '2025-04-06 10:13:23', '2025-04-06 10:14:56'),
+(11, 'Michael', '2025-04-06 12:46:10', '2025-04-06 12:46:10');
 
 -- --------------------------------------------------------
 
@@ -79,18 +81,22 @@ CREATE TABLE `tblbooks` (
   `AuthorId` int(11) DEFAULT NULL,
   `ISBNNumber` int(11) DEFAULT NULL,
   `BookPrice` int(11) DEFAULT NULL,
+  `Quantity` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Số lượng sách',
   `RegDate` timestamp NULL DEFAULT current_timestamp(),
-  `UpdationDate` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp()
+  `UpdationDate` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `BookImage` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `tblbooks`
 --
 
-INSERT INTO `tblbooks` (`id`, `BookName`, `CatId`, `AuthorId`, `ISBNNumber`, `BookPrice`, `RegDate`, `UpdationDate`) VALUES
-(1, 'Dragonball', 8, 4, 9099, 100000, '2025-03-02 20:04:55', '2025-04-02 16:29:30'),
-(3, 'Bleach', 6, 2, 1111, 15000, '2025-03-03 20:17:31', '2025-04-02 16:29:42'),
-(4, 'Boruto', 4, 1, 1234, 50000, '2025-04-02 17:27:25', NULL);
+INSERT INTO `tblbooks` (`id`, `BookName`, `CatId`, `AuthorId`, `ISBNNumber`, `BookPrice`, `Quantity`, `RegDate`, `UpdationDate`, `BookImage`) VALUES
+(1, 'Dragonball', 8, 4, 2222, 30000, 2, '2025-03-02 20:04:55', '2025-04-07 09:55:01', 'songoku.jpg'),
+(3, 'Bleach', 6, 2, 1111, 20000, 5, '2025-03-03 20:17:31', '2025-04-07 10:00:58', 'Bleach_cover_01.jpg'),
+(4, 'Naruto Shippuden', 4, 1, 1234, 50000, 12, '2025-04-02 17:27:25', '2025-04-07 10:01:04', 'Naruto_Volume_1_manga_cover.jpg'),
+(5, 'Đắc Nhân Tâm', 9, 10, 2003, 50000, 20, '2025-04-06 10:17:44', '2025-04-06 13:38:42', 'dacnhantam86.jpg'),
+(7, 'PHP & MYSQL', 5, 11, 3333, 20000, 10, '2025-04-06 13:35:22', '2025-04-07 10:01:36', 'PHP_SQL.jpg');
 
 -- --------------------------------------------------------
 
@@ -114,7 +120,8 @@ INSERT INTO `tblcategory` (`id`, `CategoryName`, `Status`, `CreationDate`, `Upda
 (4, 'Lãng Mạn ', 1, '2025-02-28 18:35:25', '2025-04-02 16:13:34'),
 (5, 'Công Nghệ', 1, '2025-02-28 18:35:39', '2025-04-02 16:13:42'),
 (6, 'Khoa Học', 1, '2025-02-28 18:35:55', '2025-04-02 16:13:49'),
-(8, 'Viễn Tưởng', 1, '2025-04-02 11:16:30', '2025-04-02 11:16:30');
+(8, 'Viễn Tưởng', 1, '2025-04-02 11:16:30', '2025-04-02 11:16:30'),
+(9, 'Tâm Lý', 1, '2025-04-06 10:12:56', '2025-04-06 10:12:56');
 
 -- --------------------------------------------------------
 
@@ -137,19 +144,10 @@ CREATE TABLE `tblissuedbookdetails` (
 --
 
 INSERT INTO `tblissuedbookdetails` (`id`, `BookId`, `StudentID`, `IssuesDate`, `ReturnDate`, `RetrunStatus`, `fine`) VALUES
-(1, 1, 'SID002', '2025-03-04 06:09:47', '2025-03-31 11:15:20', 1, 0),
-(2, 1, 'SID002', '2025-02-01 06:12:27', '2025-04-02 16:47:13', 1, 5),
-(3, 3, 'SID002', '2025-02-01 06:13:40', '2025-04-02 16:47:20', 0, NULL),
-(4, 3, 'SID002', '2025-02-01 06:23:23', '2025-04-02 16:47:28', 1, 2),
-(5, 1, 'SID009', '2025-03-05 10:59:26', '2025-04-02 16:47:36', 0, NULL),
-(6, 3, 'SID011', '2025-02-04 18:02:55', '2025-04-02 16:47:44', 0, NULL),
-(7, 3, 'SID002', '2025-04-02 11:03:14', '2025-04-02 11:03:33', 1, 20000),
-(8, 3, 'SID013', '2025-04-02 16:30:03', '2025-04-02 16:32:04', 1, 10000),
-(9, 3, 'SID002', '2025-04-02 16:41:21', NULL, NULL, NULL),
-(10, 3, 'SID002', '2025-04-02 17:26:47', NULL, NULL, NULL),
-(11, 4, 'SID013', '2025-04-02 17:27:53', NULL, NULL, NULL),
-(12, 4, 'SID014', '2025-04-03 01:01:25', NULL, NULL, NULL),
-(13, 4, 'SID002', '2025-04-05 03:40:22', NULL, NULL, NULL);
+(16, 5, 'SID012', '2025-04-06 14:13:19', '2025-04-07 08:10:52', 1, 10000),
+(21, 1, 'SID012', '2025-04-07 09:55:01', '2025-04-07 09:55:26', 1, 10000),
+(22, 4, 'SID012', '2025-04-07 09:56:42', '2025-04-07 10:00:15', 1, 0),
+(23, 7, 'SID012', '2025-04-07 10:01:26', '2025-04-07 10:01:36', 1, 5000);
 
 -- --------------------------------------------------------
 
@@ -166,7 +164,7 @@ CREATE TABLE `tblstudents` (
   `Password` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `Status` int(1) DEFAULT NULL,
   `RegDate` timestamp NULL DEFAULT current_timestamp(),
-  `UpdationDate` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp()
+  `UpdationDate` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
@@ -174,14 +172,11 @@ CREATE TABLE `tblstudents` (
 --
 
 INSERT INTO `tblstudents` (`id`, `StudentId`, `FullName`, `EmailId`, `MobileNumber`, `Password`, `Status`, `RegDate`, `UpdationDate`) VALUES
-(1, 'SID002', 'Hải Dương', 'skydas@gmail.com', '9865472555', 'f925916e2754e5e03f75dd58a5733251', 1, '2025-02-28 15:37:05', '2025-04-02 16:34:07'),
-(4, 'SID005', 'sdfsd', 'csfsd@dfsfks.com', '8569710025', '92228410fc8b872914e023160cf4ae8f', 0, '2025-03-04 15:41:27', '2025-04-02 16:34:17'),
-(8, 'SID009', 'test', 'test@gmail.com', '2359874527', 'f925916e2754e5e03f75dd58a5733251', 1, '2025-03-08 15:58:28', '2025-04-02 16:34:24'),
-(9, 'SID010', 'ABC', 'abc@gmail.com', '8585856224', 'f925916e2754e5e03f75dd58a5733251', 1, '2025-02-08 13:40:30', '2025-04-02 16:46:09'),
-(10, 'SID011', 'Adu', 'sarita@gmail.com', '4672423754', 'f925916e2754e5e03f75dd58a5733251', 1, '2025-03-06 18:00:59', '2025-04-02 16:45:50'),
+(1, 'SID002', 'Hải Dương', 'skydas@gmail.com', '9865472555', 'f925916e2754e5e03f75dd58a5733251', 1, '2025-02-28 15:37:05', '2025-04-07 10:14:09'),
 (11, 'SID012', 'hieu', 'hieu@gmail.com', '1234123124', 'c8837b23ff8aaa8a2dde915473ce0991', 1, '2025-04-02 11:05:38', NULL),
 (12, 'SID013', 'Hiếu Minh', 'demo@gmail.com', '1234657621', 'c8837b23ff8aaa8a2dde915473ce0991', 1, '2025-04-02 16:28:15', NULL),
-(13, 'SID014', 'HieuMinhTester', 'hieudepzai@gmail.com', '135689', 'c8837b23ff8aaa8a2dde915473ce0991', 1, '2025-04-03 00:57:54', NULL);
+(14, 'SID015', 'DuongSkydas', 'skydas86@gmail.com', '1999999999', 'c8837b23ff8aaa8a2dde915473ce0991', 1, '2025-04-06 12:15:37', NULL),
+(15, 'SID016', 'Kiên', 'broleader@gmail.com', '0712412521', 'c8837b23ff8aaa8a2dde915473ce0991', 1, '2025-04-07 10:12:12', '2025-04-07 10:12:12');
 
 --
 -- Chỉ mục cho các bảng đã đổ
@@ -238,31 +233,31 @@ ALTER TABLE `admin`
 -- AUTO_INCREMENT cho bảng `tblauthors`
 --
 ALTER TABLE `tblauthors`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT cho bảng `tblbooks`
 --
 ALTER TABLE `tblbooks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT cho bảng `tblcategory`
 --
 ALTER TABLE `tblcategory`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT cho bảng `tblissuedbookdetails`
 --
 ALTER TABLE `tblissuedbookdetails`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT cho bảng `tblstudents`
 --
 ALTER TABLE `tblstudents`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
