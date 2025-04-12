@@ -60,26 +60,54 @@ if (strlen($_SESSION['alogin']) == 0) {
         } 
         // --- Kết thúc xử lý hình ảnh ---
 
+        // --- Xử lý BookFile ---
+        $bookfile_new = $_FILES["bookfile"]["name"];
+        $bookfile_current = $_POST['current_bookfile']; 
+        $bookfile_to_save = $bookfile_current;
+
+        if (!empty($bookfile_new)) {
+            $file_dir = "assets/books/";
+            $target_file_path = $file_dir . basename($bookfile_new);
+            $file_ext = strtolower(pathinfo($target_file_path, PATHINFO_EXTENSION));
+            $uploadOk = 1;
+
+            if ($file_ext != "pdf") {
+                $_SESSION['error'] = "Chỉ cho phép tải file PDF.";
+                $uploadOk = 0;
+            }
+
+            if ($uploadOk == 1 && move_uploaded_file($_FILES["bookfile"]["tmp_name"], $target_file_path)) {
+                $bookfile_to_save = $bookfile_new;
+
+                if ($bookfile_current != $bookfile_new && file_exists($file_dir . $bookfile_current)) {
+                    unlink($file_dir . $bookfile_current);
+                }
+            } else {
+                $_SESSION['error'] = "Upload file PDF thất bại, giữ nguyên file cũ.";
+            }
+        }
 
         // --- CẬP NHẬT SQL ĐỂ BAO GỒM QUANTITY ---
         $sql = "UPDATE tblbooks 
-                SET BookName=:bookname, 
-                    CatId=:category, 
-                    AuthorId=:author, 
-                    ISBNNumber=:isbn, 
-                    BookPrice=:price, 
-                    Quantity=:quantity,      -- <<< THÊM CẬP NHẬT QUANTITY
-                    bookimage=:bookimage 
-                WHERE id=:bookid";
+            SET BookName=:bookname, 
+                CatId=:category, 
+                AuthorId=:author, 
+                ISBNNumber=:isbn, 
+                BookPrice=:price, 
+                Quantity=:quantity,
+                bookimage=:bookimage,
+                BookFile=:bookfile   
+            WHERE id=:bookid";
         $query = $dbh->prepare($sql);
         $query->bindParam(':bookname', $bookname, PDO::PARAM_STR);
-        $query->bindParam(':category', $category, PDO::PARAM_INT); // ID thường là INT
-        $query->bindParam(':author', $author, PDO::PARAM_INT);     // ID thường là INT
+        $query->bindParam(':category', $category, PDO::PARAM_INT); 
+        $query->bindParam(':author', $author, PDO::PARAM_INT);   
         $query->bindParam(':isbn', $isbn, PDO::PARAM_STR);
-        $query->bindParam(':price', $price, PDO::PARAM_STR);       // Nên là DECIMAL/FLOAT hoặc INT
-        $query->bindParam(':quantity', $quantity, PDO::PARAM_INT); // <<< BIND PARAM CHO QUANTITY
-        $query->bindParam(':bookimage', $bookimage_to_save, PDO::PARAM_STR); // Sử dụng tên ảnh đã xử lý
+        $query->bindParam(':price', $price, PDO::PARAM_STR);   
+        $query->bindParam(':quantity', $quantity, PDO::PARAM_INT); 
+        $query->bindParam(':bookimage', $bookimage_to_save, PDO::PARAM_STR); 
         $query->bindParam(':bookid', $bookid, PDO::PARAM_INT);
+        $query->bindParam(':bookfile', $bookfile_to_save, PDO::PARAM_STR);
 
         if ($query->execute()) {
              $_SESSION['msg'] = "Thông tin sách đã được cập nhật thành công!";
@@ -156,7 +184,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                             tblauthors.id as athrid, 
                                             tblbooks.ISBNNumber, 
                                             tblbooks.BookPrice, 
-                                            tblbooks.Quantity,      -- <<< THÊM LẤY QUANTITY
+                                            tblbooks.Quantity,      
                                             tblbooks.id as bookid 
                                         FROM tblbooks 
                                         JOIN tblcategory ON tblcategory.id = tblbooks.CatId 
@@ -168,7 +196,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                 $results = $query->fetchAll(PDO::FETCH_OBJ);
                                 if ($query->rowCount() > 0) {
                                     foreach ($results as $result) { 
-                                        $current_bookimage = $result->bookimage; // Lưu lại tên ảnh hiện tại
+                                        $current_bookimage = $result->bookimage; 
                                         ?>  
                                         <!-- Hidden input để lưu tên ảnh hiện tại, dùng khi không upload ảnh mới -->
                                         <input type="hidden" name="current_bookimage" value="<?php echo htmlentities($current_bookimage); ?>">
@@ -238,6 +266,8 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         </div>
                                         <!-- =========================================== -->
 
+                                        <input type="hidden" name="current_bookfile" value="<?php echo htmlentities($result->BookFile); ?>">
+
                                         <div class="form-group">
                                             <label>Ảnh bìa sách hiện tại:</label><br/>
                                             <!-- Sửa đường dẫn ảnh -->
@@ -246,6 +276,13 @@ if (strlen($_SESSION['alogin']) == 0) {
                                             <input type="file" name="bookimage" class="form-control" accept="image/png, image/jpeg, image/jpg, image/gif" />
                                             <p class="help-block">Để trống nếu bạn không muốn thay đổi ảnh bìa.</p>
                                         </div>
+
+                                        <div class="form-group">
+                                            <label>Tải file mới (PDF):</label>
+                                            <input type="file" name="bookfile" class="form-control" accept="application/pdf" />
+                                            <p class="help-block">Để trống nếu không muốn thay đổi file sách.</p>
+                                        </div>
+
                                 <?php } // end foreach
                                 } else { // end if rowCount > 0 ?>
                                  <div class="alert alert-warning">Không tìm thấy thông tin sách với ID này.</div>   

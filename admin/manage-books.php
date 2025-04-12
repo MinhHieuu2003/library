@@ -118,13 +118,13 @@ header('location:manage-books.php');
                                             <th>Tác giả</th>
                                             <th>ISBN</th>
                                             <th>Giá (VND)</th>
-                                            <th>Số lượng</th> <!-- <<< THÊM TIÊU ĐỀ CỘT Ở ĐÂY -->
+                                            <th>Số lượng</th>
                                             <th>Hành động</th>
                                         </tr>
                                     </thead>
                                     <tbody>
 <?php 
-// --- THÊM tblbooks.Quantity VÀO CÂU LỆNH SQL ---
+
 $sql = "SELECT 
             tblbooks.BookName,
             tblcategory.CategoryName,
@@ -132,11 +132,13 @@ $sql = "SELECT
             tblauthors.AuthorName,
             tblbooks.ISBNNumber,
             tblbooks.BookPrice, 
-            tblbooks.Quantity,  -- <<< THÊM CỘT NÀY VÀO SELECT
+            tblbooks.Quantity,  
+            tblbooks.BookFile, 
             tblbooks.id as bookid 
         FROM tblbooks 
         JOIN tblcategory ON tblcategory.id=tblbooks.CatId 
-        JOIN tblauthors ON tblauthors.id=tblbooks.AuthorId";
+        JOIN tblauthors ON tblauthors.id=tblbooks.AuthorId
+        ";
 $query = $dbh -> prepare($sql);
 $query->execute();
 $results=$query->fetchAll(PDO::FETCH_OBJ);
@@ -152,13 +154,24 @@ foreach($results as $result)
                                             <td class="center"><?php echo htmlentities($result->CategoryName);?></td>
                                             <td class="center"><?php echo htmlentities($result->AuthorName);?></td>
                                             <td class="center"><?php echo htmlentities($result->ISBNNumber);?></td>
-                                            <td class="center"><?php echo number_format($result->BookPrice, 0, ',', '.');?></td> <!-- Định dạng giá tiền cho dễ đọc -->
-                                            <td class="center"><?php echo htmlentities($result->Quantity);?></td> <!-- <<< THÊM Ô HIỂN THỊ SỐ LƯỢNG Ở ĐÂY -->
+                                            <td class="center"><?php echo number_format($result->BookPrice, 0, ',', '.');?></td> 
+                                            <td class="center"><?php echo htmlentities($result->Quantity);?></td>
                                             <td class="center">
-                                                <a href="edit-book.php?bookid=<?php echo htmlentities($result->bookid);?>"><button class="btn btn-primary btn-sm"><i class="fa fa-edit "></i> Sửa</button></a>
-                                                <a href="manage-books.php?del=<?php echo htmlentities($result->bookid);?>" onclick="return confirm('Bạn chắc chắn muốn xóa cuốn sách này?');" >  <button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Xóa</button></a>
+                                                <a href="edit-book.php?bookid=<?php echo htmlentities($result->bookid);?>">
+                                                    <button class="btn btn-primary btn-sm"><i class="fa fa-edit "></i> Sửa</button>
+                                                </a>
+                                                <a href="manage-books.php?del=<?php echo htmlentities($result->bookid);?>" onclick="return confirm('Bạn chắc chắn muốn xóa cuốn sách này?');">
+                                                    <button class="btn btn-danger btn-sm"><i class="fa fa-trash"></i> Xóa</button>
+                                                </a>
+                                                
+                                                <?php if (!empty($result->BookFile)) { ?>
+                                                    <a href="assets/books/<?php echo htmlentities($result->BookFile); ?>" target="_blank">
+                                                        <button class="btn btn-success btn-sm"><i class="fa fa-book"></i> Đọc sách</button>
+                                                    </a>
+                                                <?php } ?>
                                             </td>
                                         </tr>
+
  <?php $cnt=$cnt+1;}} ?>                                      
                                     </tbody>
                                 </table>

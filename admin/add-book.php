@@ -11,75 +11,107 @@ if (strlen($_SESSION['alogin']) == 0) {
         $author = $_POST['author'];
         $isbn = $_POST['isbn'];
         $price = $_POST['price'];
-        $quantity = $_POST['quantity']; // <<< LẤY DỮ LIỆU SỐ LƯỢNG TỪ FORM
-        $bookimage = $_FILES["bookimage"]["name"]; // Chỉ lấy tên file
-
-        // ---- Đường dẫn lưu ảnh ----
-        // Đảm bảo thư mục tồn tại và có quyền ghi
-        $target_dir = "assets/img/"; 
-        // Tạo tên file duy nhất hoặc kiểm tra nếu file đã tồn tại nếu cần
-        $target_file = $target_dir . basename($bookimage);
-        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-
-        // --- Kiểm tra cơ bản cho upload ảnh ---
+        $quantity = $_POST['quantity'];
+    
+        // ==============================
+        // XỬ LÝ FILE ẢNH BÌA
+        // ==============================
+        $bookimage = $_FILES["bookimage"]["name"];
+        $image_tmp = $_FILES["bookimage"]["tmp_name"];
+        $image_ext = strtolower(pathinfo($bookimage, PATHINFO_EXTENSION));
+    
         $uploadOk = 1;
-        // Kiểm tra xem file có phải ảnh thật không
-        $check = getimagesize($_FILES["bookimage"]["tmp_name"]);
+    
+        // Kiểm tra định dạng ảnh
+        $check = getimagesize($image_tmp);
         if ($check === false) {
             $_SESSION['error'] = "File không phải là ảnh.";
             $uploadOk = 0;
         }
-        // Kiểm tra kích thước file (ví dụ: giới hạn 5MB)
-        if ($_FILES["bookimage"]["size"] > 5000000) {
-            $_SESSION['error'] = "Xin lỗi, file ảnh quá lớn (yêu cầu < 5MB).";
+    
+        if ($_FILES["bookimage"]["size"] > 5 * 1024 * 1024) {
+            $_SESSION['error'] = "File ảnh quá lớn (yêu cầu < 5MB).";
             $uploadOk = 0;
         }
-        // Cho phép định dạng ảnh nhất định
-        if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif") {
-            $_SESSION['error'] = "Xin lỗi, chỉ cho phép file JPG, JPEG, PNG & GIF.";
+    
+        if (!in_array($image_ext, ['jpg', 'jpeg', 'png', 'gif'])) {
+            $_SESSION['error'] = "Chỉ cho phép JPG, JPEG, PNG, GIF.";
             $uploadOk = 0;
         }
-
-        // --- Nếu kiểm tra OK thì tiến hành upload và lưu DB ---
-        if ($uploadOk == 1) {
-            if (move_uploaded_file($_FILES["bookimage"]["tmp_name"], $target_file)) {
-                // --- CẬP NHẬT CÂU LỆNH SQL ĐỂ THÊM QUANTITY ---
-                $sql = "INSERT INTO tblbooks(BookName, CatId, AuthorId, ISBNNumber, BookPrice, Quantity, bookimage) 
-                        VALUES(:bookname, :category, :author, :isbn, :price, :quantity, :bookimage)";
-                $query = $dbh->prepare($sql);
-                $query->bindParam(':bookname', $bookname, PDO::PARAM_STR);
-                $query->bindParam(':category', $category, PDO::PARAM_STR); // Thường là INT nếu lưu ID
-                $query->bindParam(':author', $author, PDO::PARAM_STR);     // Thường là INT nếu lưu ID
-                $query->bindParam(':isbn', $isbn, PDO::PARAM_STR);
-                $query->bindParam(':price', $price, PDO::PARAM_STR);       // Nên là DECIMAL hoặc INT/FLOAT trong DB
-                $query->bindParam(':quantity', $quantity, PDO::PARAM_INT); // <<< BIND PARAM CHO QUANTITY (nên là INT)
-                $query->bindParam(':bookimage', $bookimage, PDO::PARAM_STR); // Lưu tên file
-                
-                $query->execute();
-                $lastInsertId = $dbh->lastInsertId();
-
-                if ($lastInsertId) {
-                    $_SESSION['msg'] = "Thêm sách thành công!";
-                    header('location:manage-books.php');
-                    exit(); // Thêm exit sau header redirect
+    
+        // Đổi tên ảnh thành chuỗi unique
+        $bookimage_newname = uniqid('img_', true) . '.' . $image_ext;
+        $target_dir_img = "assets/img/";
+        $target_file_img = $target_dir_img . $bookimage_newname;
+    
+        // ==============================
+        // XỬ LÝ FILE SÁCH PDF
+        // ==============================
+        $bookfile = $_FILES["bookfile"]["name"];
+        $bookfile_tmp = $_FILES["bookfile"]["tmp_name"];
+        $bookfile_ext = strtolower(pathinfo($bookfile, PATHINFO_EXTENSION));
+    
+        $uploadPdfOk = 1;
+    
+        if ($bookfile_ext != "pdf") {
+            $_SESSION['error'] = "Chỉ cho phép tải lên file PDF.";
+            $uploadPdfOk = 0;
+        }
+    
+        if ($_FILES["bookfile"]["size"] > 20 * 1024 * 1024) {
+            $_SESSION['error'] = "File PDF quá lớn (yêu cầu < 20MB).";
+            $uploadPdfOk = 0;
+        }
+    
+        // Đổi tên file PDF thành unique
+        $bookfile_newname = uniqid('pdf_', true) . '.' . $bookfile_ext;
+        $target_dir_pdf = "assets/books/";
+        $target_file_pdf = $target_dir_pdf . $bookfile_newname;
+    
+        // ==============================
+        // UPLOAD và INSERT DB nếu OK
+        // ==============================
+        if ($uploadOk == 1 && $uploadPdfOk == 1) {
+            if (move_uploaded_file($image_tmp, $target_file_img)) {
+                if (move_uploaded_file($bookfile_tmp, $target_file_pdf)) {
+                    $sql = "INSERT INTO tblbooks(BookName, CatId, AuthorId, ISBNNumber, BookPrice, Quantity, bookimage, BookFile) 
+                            VALUES(:bookname, :category, :author, :isbn, :price, :quantity, :bookimage, :bookfile)";
+                    $query = $dbh->prepare($sql);
+                    $query->bindParam(':bookname', $bookname, PDO::PARAM_STR);
+                    $query->bindParam(':category', $category, PDO::PARAM_STR);
+                    $query->bindParam(':author', $author, PDO::PARAM_STR);
+                    $query->bindParam(':isbn', $isbn, PDO::PARAM_STR);
+                    $query->bindParam(':price', $price, PDO::PARAM_STR);
+                    $query->bindParam(':quantity', $quantity, PDO::PARAM_INT);
+                    $query->bindParam(':bookimage', $bookimage_newname, PDO::PARAM_STR);
+                    $query->bindParam(':bookfile', $bookfile_newname, PDO::PARAM_STR);
+    
+                    $query->execute();
+                    $lastInsertId = $dbh->lastInsertId();
+    
+                    if ($lastInsertId) {
+                        $_SESSION['msg'] = "Thêm sách thành công!";
+                        header('location:manage-books.php');
+                        exit();
+                    } else {
+                        unlink($target_file_img);
+                        unlink($target_file_pdf);
+                        $_SESSION['error'] = "Đã xảy ra lỗi. Vui lòng thử lại.";
+                        header('location:add-book.php');
+                        exit();
+                    }
                 } else {
-                    // Xóa ảnh đã upload nếu insert DB lỗi
-                    unlink($target_file); 
-                    $_SESSION['error'] = "Đã xảy ra lỗi. Vui lòng thử lại";
-                    header('location:add-book.php'); // Ở lại trang add để sửa
-                    exit(); 
+                    unlink($target_file_img);
+                    $_SESSION['error'] = "Không thể upload file PDF.";
+                    header('location:add-book.php');
+                    exit();
                 }
-            } else {
-                $_SESSION['error'] = "Xin lỗi, đã có lỗi khi upload file ảnh.";
-                header('location:add-book.php'); // Ở lại trang add
-                exit();
             }
         } else {
-             // Nếu $uploadOk = 0 do lỗi kiểm tra file
-             header('location:add-book.php'); // Ở lại trang add
-             exit();
+            header('location:add-book.php');
+            exit();
         }
-    } // end if(isset($_POST['add']))
+    }    
 ?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -196,6 +228,11 @@ if (strlen($_SESSION['alogin']) == 0) {
                                 <div class="form-group">
                                     <label>Ảnh bìa sách<span style="color:red;">*</span></label>
                                     <input class="form-control" type="file" name="bookimage" accept="image/png, image/jpeg, image/jpg, image/gif" required />
+                                </div>
+
+                                <div class="form-group">
+                                    <label>File sách<span style="color:red;">*</span></label>
+                                    <input class="form-control" type="file" name="bookfile" accept="application/pdf" required />
                                 </div>
 
                                 <button type="submit" name="add" class="btn btn-info">Thêm sách</button>
