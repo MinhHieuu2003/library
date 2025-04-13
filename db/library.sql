@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th4 07, 2025 lúc 12:45 PM
--- Phiên bản máy phục vụ: 10.4.32-MariaDB
--- Phiên bản PHP: 8.0.30
+-- Thời gian đã tạo: Th4 13, 2025 lúc 07:37 AM
+-- Phiên bản máy phục vụ: 10.4.25-MariaDB
+-- Phiên bản PHP: 8.1.10
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -29,12 +29,12 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `admin` (
   `id` int(11) NOT NULL,
-  `FullName` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `AdminEmail` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `UserName` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
-  `Password` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `FullName` varchar(100) CHARACTER SET utf8mb4 DEFAULT NULL,
+  `AdminEmail` varchar(120) CHARACTER SET utf8mb4 DEFAULT NULL,
+  `UserName` varchar(100) CHARACTER SET utf8mb4 NOT NULL,
+  `Password` varchar(100) CHARACTER SET utf8mb4 NOT NULL,
   `updationDate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Đang đổ dữ liệu cho bảng `admin`
@@ -51,10 +51,10 @@ INSERT INTO `admin` (`id`, `FullName`, `AdminEmail`, `UserName`, `Password`, `up
 
 CREATE TABLE `tblauthors` (
   `id` int(11) NOT NULL,
-  `AuthorName` varchar(159) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `AuthorName` varchar(159) CHARACTER SET utf8mb4 DEFAULT NULL,
   `creationDate` timestamp NULL DEFAULT current_timestamp(),
   `UpdationDate` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Đang đổ dữ liệu cho bảng `tblauthors`
@@ -76,7 +76,7 @@ INSERT INTO `tblauthors` (`id`, `AuthorName`, `creationDate`, `UpdationDate`) VA
 
 CREATE TABLE `tblbooks` (
   `id` int(11) NOT NULL,
-  `BookName` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `BookName` varchar(255) CHARACTER SET utf8mb4 DEFAULT NULL,
   `CatId` int(11) DEFAULT NULL,
   `AuthorId` int(11) DEFAULT NULL,
   `ISBNNumber` int(11) DEFAULT NULL,
@@ -84,19 +84,22 @@ CREATE TABLE `tblbooks` (
   `Quantity` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Số lượng sách',
   `RegDate` timestamp NULL DEFAULT current_timestamp(),
   `UpdationDate` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `BookImage` varchar(255) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+  `BookImage` varchar(255) DEFAULT NULL,
+  `BookFile` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Đang đổ dữ liệu cho bảng `tblbooks`
 --
 
-INSERT INTO `tblbooks` (`id`, `BookName`, `CatId`, `AuthorId`, `ISBNNumber`, `BookPrice`, `Quantity`, `RegDate`, `UpdationDate`, `BookImage`) VALUES
-(1, 'Dragonball', 8, 4, 2222, 30000, 2, '2025-03-02 20:04:55', '2025-04-07 09:55:01', 'songoku.jpg'),
-(3, 'Bleach', 6, 2, 1111, 20000, 5, '2025-03-03 20:17:31', '2025-04-07 10:00:58', 'Bleach_cover_01.jpg'),
-(4, 'Naruto Shippuden', 4, 1, 1234, 50000, 12, '2025-04-02 17:27:25', '2025-04-07 10:01:04', 'Naruto_Volume_1_manga_cover.jpg'),
-(5, 'Đắc Nhân Tâm', 9, 10, 2003, 50000, 20, '2025-04-06 10:17:44', '2025-04-06 13:38:42', 'dacnhantam86.jpg'),
-(7, 'PHP & MYSQL', 5, 11, 3333, 20000, 10, '2025-04-06 13:35:22', '2025-04-07 10:01:36', 'PHP_SQL.jpg');
+INSERT INTO `tblbooks` (`id`, `BookName`, `CatId`, `AuthorId`, `ISBNNumber`, `BookPrice`, `Quantity`, `RegDate`, `UpdationDate`, `BookImage`, `BookFile`) VALUES
+(1, 'Dragonball', 8, 4, 2222, 30000, 2, '2025-03-02 20:04:55', '2025-04-07 09:55:01', 'songoku.jpg', ''),
+(3, 'Bleach', 6, 2, 1111, 20000, 5, '2025-03-03 20:17:31', '2025-04-07 10:00:58', 'Bleach_cover_01.jpg', ''),
+(4, 'Naruto Shippuden', 4, 1, 1234, 50000, 12, '2025-04-02 17:27:25', '2025-04-07 10:01:04', 'Naruto_Volume_1_manga_cover.jpg', ''),
+(5, 'Đắc Nhân Tâm', 9, 10, 2003, 50000, 20, '2025-04-06 10:17:44', '2025-04-06 13:38:42', 'dacnhantam86.jpg', ''),
+(7, 'PHP & MYSQL', 5, 11, 3333, 20000, 10, '2025-04-06 13:35:22', '2025-04-07 10:01:36', 'PHP_SQL.jpg', ''),
+(8, 'Sách mới', 5, 3, 9001, 15000, 20, '2025-04-12 18:35:06', '2025-04-13 03:39:55', 'matnaoxanhnhat.png', 'kiemthu (1).pdf'),
+(9, 'New Book', 4, 10, 2100, 20000, 10, '2025-04-12 18:38:57', '2025-04-12 19:24:31', 'img_67fab3419fb9b4.70464226.png', 'CMP174.pdf');
 
 -- --------------------------------------------------------
 
@@ -106,11 +109,11 @@ INSERT INTO `tblbooks` (`id`, `BookName`, `CatId`, `AuthorId`, `ISBNNumber`, `Bo
 
 CREATE TABLE `tblcategory` (
   `id` int(11) NOT NULL,
-  `CategoryName` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `CategoryName` varchar(150) CHARACTER SET utf8mb4 DEFAULT NULL,
   `Status` int(1) DEFAULT NULL,
   `CreationDate` timestamp NULL DEFAULT current_timestamp(),
   `UpdationDate` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Đang đổ dữ liệu cho bảng `tblcategory`
@@ -132,12 +135,12 @@ INSERT INTO `tblcategory` (`id`, `CategoryName`, `Status`, `CreationDate`, `Upda
 CREATE TABLE `tblissuedbookdetails` (
   `id` int(11) NOT NULL,
   `BookId` int(11) DEFAULT NULL,
-  `StudentID` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `StudentID` varchar(150) CHARACTER SET utf8mb4 DEFAULT NULL,
   `IssuesDate` timestamp NULL DEFAULT current_timestamp(),
   `ReturnDate` timestamp NULL DEFAULT NULL ON UPDATE current_timestamp(),
   `RetrunStatus` int(1) DEFAULT NULL,
   `fine` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Đang đổ dữ liệu cho bảng `tblissuedbookdetails`
@@ -157,15 +160,15 @@ INSERT INTO `tblissuedbookdetails` (`id`, `BookId`, `StudentID`, `IssuesDate`, `
 
 CREATE TABLE `tblstudents` (
   `id` int(11) NOT NULL,
-  `StudentId` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `FullName` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `EmailId` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `MobileNumber` char(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `Password` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `StudentId` varchar(100) CHARACTER SET utf8mb4 DEFAULT NULL,
+  `FullName` varchar(120) CHARACTER SET utf8mb4 DEFAULT NULL,
+  `EmailId` varchar(120) CHARACTER SET utf8mb4 DEFAULT NULL,
+  `MobileNumber` char(11) CHARACTER SET utf8mb4 DEFAULT NULL,
+  `Password` varchar(120) CHARACTER SET utf8mb4 DEFAULT NULL,
   `Status` int(1) DEFAULT NULL,
   `RegDate` timestamp NULL DEFAULT current_timestamp(),
   `UpdationDate` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Đang đổ dữ liệu cho bảng `tblstudents`
@@ -176,7 +179,8 @@ INSERT INTO `tblstudents` (`id`, `StudentId`, `FullName`, `EmailId`, `MobileNumb
 (11, 'SID012', 'hieu', 'hieu@gmail.com', '1234123124', 'c8837b23ff8aaa8a2dde915473ce0991', 1, '2025-04-02 11:05:38', NULL),
 (12, 'SID013', 'Hiếu Minh', 'demo@gmail.com', '1234657621', 'c8837b23ff8aaa8a2dde915473ce0991', 1, '2025-04-02 16:28:15', NULL),
 (14, 'SID015', 'DuongSkydas', 'skydas86@gmail.com', '1999999999', 'c8837b23ff8aaa8a2dde915473ce0991', 1, '2025-04-06 12:15:37', NULL),
-(15, 'SID016', 'Kiên', 'broleader@gmail.com', '0712412521', 'c8837b23ff8aaa8a2dde915473ce0991', 1, '2025-04-07 10:12:12', '2025-04-07 10:12:12');
+(15, 'SID016', 'Kiên', 'broleader@gmail.com', '0712412521', 'c8837b23ff8aaa8a2dde915473ce0991', 1, '2025-04-07 10:12:12', '2025-04-07 10:12:12'),
+(16, 'SID017', 'Vu Nguyen', 'vu@gmail.com', '0962465496', '202cb962ac59075b964b07152d234b70', 1, '2025-04-12 19:13:12', '2025-04-12 19:13:12');
 
 --
 -- Chỉ mục cho các bảng đã đổ
@@ -239,7 +243,7 @@ ALTER TABLE `tblauthors`
 -- AUTO_INCREMENT cho bảng `tblbooks`
 --
 ALTER TABLE `tblbooks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT cho bảng `tblcategory`
@@ -257,7 +261,7 @@ ALTER TABLE `tblissuedbookdetails`
 -- AUTO_INCREMENT cho bảng `tblstudents`
 --
 ALTER TABLE `tblstudents`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
